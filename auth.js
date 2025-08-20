@@ -6,7 +6,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyAxqsrggnSSwjuKh4MsV4l4WdhCGTT2NLI",
   authDomain: "trading-b780b.firebaseapp.com",
   projectId: "trading-b780b",
-  storageBucket: "trading-b780b.appspot.com", // J'ai corrigé une petite erreur ici, firebasestorage.app est pour une autre utilisation
+  storageBucket: "trading-b780b.appspot.com",
   messagingSenderId: "946655966659",
   appId: "1:946655966659:web:465e12a9c836930bc9b976",
   measurementId: "G-VTJZS831VT"
@@ -21,30 +21,23 @@ const db = firebase.firestore();
 
 // --- SÉLECTION DES ÉLÉMENTS DU DOM ---
 const loader = document.getElementById('loader');
-
 const loginView = document.getElementById('login-view');
 const signupView = document.getElementById('signup-view');
 const loginForm = document.getElementById('login-form');
 const signupForm = document.getElementById('signup-form');
-
 const showSignupLink = document.getElementById('show-signup');
 const showLoginLink = document.getElementById('show-login');
-
 
 // --- FONCTIONS UTILITAIRES ---
 const showLoader = () => loader.classList.remove('hidden');
 const hideLoader = () => loader.classList.add('hidden');
 
-
 // --- GESTION DES ÉVÉNEMENTS ---
-
-// Logique pour alterner entre les vues de connexion et d'inscription
 showSignupLink.addEventListener('click', (e) => {
     e.preventDefault();
     loginView.classList.add('hidden');
     signupView.classList.remove('hidden');
 });
-
 showLoginLink.addEventListener('click', (e) => {
     e.preventDefault();
     signupView.classList.add('hidden');
@@ -55,25 +48,21 @@ showLoginLink.addEventListener('click', (e) => {
 signupForm.addEventListener('submit', (e) => {
     e.preventDefault();
     showLoader();
-
     const email = document.getElementById('signup-email').value;
     const password = document.getElementById('signup-password').value;
-
     auth.createUserWithEmailAndPassword(email, password)
         .then(userCredential => {
             console.log('Utilisateur inscrit :', userCredential.user.uid);
-            // Création d'un portefeuille pour le nouvel utilisateur dans Firestore
             return db.collection('portfolios').doc(userCredential.user.uid).set({
                 userId: userCredential.user.uid,
-                cash: 10000, // Solde de départ en USD
-                coins: {} // Objet pour stocker les cryptos possédées
+                cash: 10000,
+                coins: {}
             });
         })
         .then(() => {
             console.log('Portefeuille créé avec succès !');
             signupForm.reset();
             hideLoader();
-            // L'observateur onAuthStateChanged dans app.js gérera la redirection
         })
         .catch(error => {
             hideLoader();
@@ -85,16 +74,13 @@ signupForm.addEventListener('submit', (e) => {
 loginForm.addEventListener('submit', (e) => {
     e.preventDefault();
     showLoader();
-
     const email = document.getElementById('login-email').value;
     const password = document.getElementById('login-password').value;
-
     auth.signInWithEmailAndPassword(email, password)
         .then(userCredential => {
             console.log('Utilisateur connecté :', userCredential.user.uid);
             loginForm.reset();
             hideLoader();
-            // L'observateur onAuthStateChanged dans app.js gérera la redirection
         })
         .catch(error => {
             hideLoader();
