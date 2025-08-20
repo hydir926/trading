@@ -1,6 +1,6 @@
-// app.js
+// app.js (Version finale corrigée - sans doublons)
 
-// --- SÉLECTION DES ÉLÉMENTS DU DOM ---
+// --- SÉLECTION UNIQUE DE TOUS LES ÉLÉMENTS DU DOM ---
 const authContainer = document.getElementById('auth-container');
 const appContainer = document.getElementById('app-container');
 const profileContainer = document.getElementById('profile-container');
@@ -29,6 +29,10 @@ const passwordChangeForm = document.getElementById('password-change-form');
 let unsubscribeUser;
 let marketData = [];
 let currentUser = null;
+
+// --- FONCTIONS UTILITAIRES ---
+const showLoader = () => loader.classList.remove('hidden');
+const hideLoader = () => loader.classList.add('hidden');
 
 // --- GESTION DE L'ÉTAT DE L'APPLICATION ---
 auth.onAuthStateChanged(user => {
@@ -124,9 +128,6 @@ async function sellCoin(symbol, price) {
 }
 
 // --- FONCTIONS DE RÉCUPÉRATION ET D'AFFICHAGE ---
-const showLoader = () => loader.classList.remove('hidden');
-const hideLoader = () => loader.classList.add('hidden');
-
 function fetchUserData(userId) {
     unsubscribeUser = db.collection('users').doc(userId).onSnapshot(doc => {
         if (doc.exists) {
