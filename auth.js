@@ -1,3 +1,9 @@
+alert("TEST : Mon fichier auth.js a bien été rechargé !");
+
+// -- DÉBUT DE LA CONFIGURATION FIREBASE --
+// ... le reste de votre code
+
+
 // auth.js
 
 // -- DÉBUT DE LA CONFIGURATION FIREBASE --
