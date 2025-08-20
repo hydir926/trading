@@ -1,4 +1,4 @@
-// app.js (Version finale corrigée - sans doublons)
+// app.js (Version finale, propre et sans doublons)
 
 // --- SÉLECTION UNIQUE DE TOUS LES ÉLÉMENTS DU DOM ---
 const authContainer = document.getElementById('auth-container');
