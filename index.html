@@ -1,0 +1,58 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Trading App</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Section Connexion/Inscription (visible par défaut) -->
+    <div id="auth-container">
+        <!-- Formulaire de connexion -->
+        <div id="login-view">
+            <h2>Connexion</h2>
+            <form id="login-form">
+                <input type="email" id="login-email" placeholder="Email" required>
+                <input type="password" id="login-password" placeholder="Mot de passe" required>
+                <button type="submit">Se connecter</button>
+            </form>
+            <p>Pas de compte ? <a href="#" id="show-signup">Inscrivez-vous</a></p>
+        </div>
+
+        <!-- Formulaire d'inscription (caché par défaut) -->
+        <div id="signup-view" class="hidden">
+            <h2>Inscription</h2>
+            <form id="signup-form">
+                <input type="email" id="signup-email" placeholder="Email" required>
+                <input type="password" id="signup-password" placeholder="Mot de passe" required>
+                <button type="submit">S'inscrire</button>
+            </form>
+            <p>Déjà un compte ? <a href="#" id="show-login">Connectez-vous</a></p>
+        </div>
+    </div>
+
+    <!-- Section principale de l'application (cachée par défaut) -->
+    <div id="app-container" class="hidden">
+        <h1>Tableau de bord Crypto</h1>
+        <p>Bienvenue, <span id="user-email"></span> !</p>
+        <button id="logout-button">Se déconnecter</button>
+        <hr>
+        <h2>Marchés</h2>
+        <div id="crypto-list">Chargement...</div>
+    </div>
+
+    <!-- ===== IMPORTATION DES SCRIPTS FIREBASE (CDN) ===== -->
+    <!-- Remplacez par les versions les plus récentes si nécessaire -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    
+    <!-- ===== NOS SCRIPTS PERSONNALISÉS ===== -->
+    <script src="auth.js"></script>
+    <script src="app.js"></script>
+
+</body>
+</html>
