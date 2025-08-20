@@ -1,13 +1,6 @@
-alert("TEST : Mon fichier auth.js a bien été rechargé !");
-
-// -- DÉBUT DE LA CONFIGURATION FIREBASE --
-// ... le reste de votre code
-
-
 // auth.js
 
 // -- DÉBUT DE LA CONFIGURATION FIREBASE --
-// Configuration de votre projet Firebase (intégrée)
 const firebaseConfig = {
   apiKey: "AIzaSyAxqsrggnSSwjuKh4MsV4l4WdhCGTT2NLI",
   authDomain: "trading-b780b.firebaseapp.com",
