@@ -9,6 +9,9 @@ const logoutButton = document.getElementById('logout-button');
 const portfolioValueDiv = document.getElementById('portfolio-value');
 const cryptoTableContainer = document.getElementById('crypto-table-container');
 
+// Variable pour stocker la fonction de désinscription de l'écouteur
+let unsubscribePortfolio;
+
 // --- GESTION DE L'ÉTAT DE L'APPLICATION ---
 
 // Observateur central qui réagit aux changements d'état de connexion
@@ -20,13 +23,18 @@ auth.onAuthStateChanged(user => {
         userEmailSpan.textContent = user.email;
 
         // Charger les données de l'application
-        fetchPortfolio(user.uid);
+        fetchPortfolio(user.uid); // Ceci met en place l'écouteur
         fetchMarketData();
 
     } else {
         // L'utilisateur est déconnecté
         authContainer.classList.remove('hidden');
         appContainer.classList.add('hidden');
+        
+        // S'il y a un écouteur de portefeuille actif, on le stoppe pour économiser les ressources
+        if (unsubscribePortfolio) {
+            unsubscribePortfolio();
+        }
     }
 });
 
@@ -39,23 +47,25 @@ logoutButton.addEventListener('click', () => {
 
 // --- FONCTIONS DE RÉCUPÉRATION DE DONNÉES ---
 
-// Récupérer les données du portefeuille depuis Firestore
-async function fetchPortfolio(userId) {
-    try {
-        const doc = await db.collection('portfolios').doc(userId).get();
+// VERSION CORRIGÉE : Mettre en place un écouteur en temps réel sur le portefeuille
+function fetchPortfolio(userId) {
+    // onSnapshot crée un lien direct avec la base de données.
+    // La fonction se déclenchera automatiquement dès que les données seront disponibles
+    // ou mises à jour, ce qui résout le problème de timing.
+    unsubscribePortfolio = db.collection('portfolios').doc(userId).onSnapshot(doc => {
         if (doc.exists) {
+            console.log("Données du portefeuille reçues :", doc.data());
             const portfolio = doc.data();
-            // Formatte le montant en dollars
             const formattedCash = portfolio.cash.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
             portfolioValueDiv.textContent = formattedCash;
         } else {
-            console.error("Portefeuille non trouvé !");
-            portfolioValueDiv.textContent = "Erreur";
+            console.log("Le document du portefeuille n'existe pas encore, en attente de sa création...");
+            portfolioValueDiv.textContent = "Création du portefeuille...";
         }
-    } catch (error) {
+    }, error => {
         console.error("Erreur de lecture du portefeuille :", error);
-        portfolioValueDiv.textContent = "Erreur";
-    }
+        portfolioValueDiv.textContent = "Erreur de permission";
+    });
 }
 
 // Récupérer les données du marché depuis l'API CoinGecko
