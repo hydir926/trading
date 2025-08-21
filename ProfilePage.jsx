@@ -9,17 +9,12 @@ export default function ProfilePage({ user, userData }) {
     const handlePasswordChange = async (e) => {
         e.preventDefault();
         setMessage('');
-        if (newPassword.length < 6) {
-            setMessage("Le mot de passe doit faire au moins 6 caractères.");
-            return;
-        }
+        if (newPassword.length < 6) return setMessage("Le mot de passe doit faire au moins 6 caractères.");
         try {
             await updatePassword(user, newPassword);
             setMessage("Mot de passe mis à jour avec succès !");
             setNewPassword('');
-        } catch (error) {
-            setMessage(`Erreur: ${error.message}`);
-        }
+        } catch (error) { setMessage(`Erreur: ${error.message.replace('Firebase: ','')}`); }
     };
     
     return (
@@ -40,9 +35,7 @@ export default function ProfilePage({ user, userData }) {
                         <input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} required className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" />
                     </div>
                     {message && <p className="text-sm text-indigo-400">{message}</p>}
-                    <div>
-                        <button type="submit" className="py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">Mettre à jour</button>
-                    </div>
+                    <div><button type="submit" className="py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700">Mettre à jour</button></div>
                 </form>
             </div>
         </div>
