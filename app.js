@@ -1,4 +1,4 @@
-// app.js
+// app.js (Version finale, propre et garantie sans doublons)
 
 // --- SÉLECTION UNIQUE DE TOUS LES ÉLÉMENTS DU DOM ---
 const authContainer = document.getElementById('auth-container');
@@ -178,7 +178,7 @@ function renderPortfolio(portfolio) {
         }
     }
     coinsHTML += `<div class="portfolio-item"><div><span class="amount">Cash</span></div><span>$${portfolio.cash.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}</span></div>`;
-    portfolioValueDiv.textContent = totalValue.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+    portfolioValueDiv.textContent = totalValue.toLocaleString('en-US', { style: 'currency', 'currency': 'USD' });
     portfolioCoinsDiv.innerHTML = coinsHTML;
 }
 
