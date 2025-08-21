@@ -1,12 +1,15 @@
+// App.jsx (chemins d'importation corrigés pour une structure plate)
+
 import React, { useState, useEffect } from 'react';
-import { auth, db } from './firebase';
+import { auth, db } from './firebase.js'; // Le '.js' est une bonne pratique
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { doc, onSnapshot } from 'firebase/firestore';
 
-import AuthPage from './pages/AuthPage';
-import DashboardPage from './pages/DashboardPage';
-import ProfilePage from './pages/ProfilePage';
-import Header from './components/Header';
+// CHEMINS CORRIGÉS
+import AuthPage from './AuthPage.jsx';
+import DashboardPage from './DashboardPage.jsx';
+import ProfilePage from './ProfilePage.jsx';
+import Header from './Header.jsx';
 
 function App() {
     const [user, setUser] = useState(null);
@@ -55,4 +58,24 @@ function App() {
     );
 }
 
-export default App;
+export default App;```
+
+---
+
+### **Étape 3 : Vérifier les Autres Fichiers**
+
+Les autres fichiers (`main.jsx`, `DashboardPage.jsx`, etc.) n'ont pas besoin d'être modifiés car leurs imports (`import React...`, `import { db }...`) ne dépendent pas de la structure de vos dossiers.
+
+### **Résumé des Actions**
+
+1.  **Assurez-vous que tous vos fichiers sont à la racine** de votre projet GitHub, comme sur votre capture d'écran.
+2.  **Remplacez le contenu de `index.html`** avec la version corrigée ci-dessus.
+3.  **Remplacez le contenu de `App.jsx`** avec la version corrigée ci-dessus.
+4.  **Déployez les changements** sur GitHub :
+    ```bash
+    git add .
+    git commit -m "Fix: Adapter les chemins pour une structure de fichiers plate"
+    git push
+    ```
+
+Après ces modifications, Vercel saura où trouver `main.jsx` et `App.jsx` pourra trouver les autres composants. Votre application fonctionnera avec la structure de fichiers que vous souhaitez.
