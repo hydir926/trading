@@ -1,6 +1,11 @@
+// src/pages/DashboardPage.jsx (CORRIGÉ)
+
 import React, { useState, useEffect } from 'react';
 import { db } from '../firebase';
-import { doc, runTransaction, FieldValue, increment } from 'firebase/firestore';
+// 1. MODIFICATION DE L'IMPORT : On importe firebase pour accéder à firestore.FieldValue
+import firebase from 'firebase/compat/app';
+import 'firebase/compat/firestore';
+import { doc, runTransaction } from 'firebase/firestore';
 
 export default function DashboardPage({ user, userData }) {
     const [marketData, setMarketData] = useState([]);
@@ -19,6 +24,7 @@ export default function DashboardPage({ user, userData }) {
     }, []);
 
     const handleTrade = async (symbol, price, type) => {
+        if (!price) return alert("Le prix de cet actif n'est pas disponible, impossible de trader.");
         const userDocRef = doc(db, 'users', user.uid);
         const ownedAmount = userData.portfolio.coins[symbol] || 0;
         
@@ -42,15 +48,15 @@ export default function DashboardPage({ user, userData }) {
                     if (portfolio.cash < amount) throw new Error("Solde insuffisant.");
                     const coinAmount = amount / price;
                     transaction.update(userDocRef, {
-                        'portfolio.cash': increment(-amount),
-                        [`portfolio.coins.${symbol}`]: increment(coinAmount)
+                        'portfolio.cash': firebase.firestore.FieldValue.increment(-amount),
+                        [`portfolio.coins.${symbol}`]: firebase.firestore.FieldValue.increment(coinAmount)
                     });
                 } else { // sell
                     if (ownedAmount < amount) throw new Error("Quantité de crypto insuffisante.");
                     const cashValue = amount * price;
                     transaction.update(userDocRef, {
-                        'portfolio.cash': increment(cashValue),
-                        [`portfolio.coins.${symbol}`]: increment(-amount)
+                        'portfolio.cash': firebase.firestore.FieldValue.increment(cashValue),
+                        [`portfolio.coins.${symbol}`]: firebase.firestore.FieldValue.increment(-amount)
                     });
                 }
             });
