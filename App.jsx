@@ -11,7 +11,7 @@ import Header from './components/Header';
 function App() {
     const [user, setUser] = useState(null);
     const [userData, setUserData] = useState(null);
-    const [currentPage, setCurrentPage] = useState('dashboard'); // 'dashboard' ou 'profile'
+    const [currentPage, setCurrentPage] = useState('dashboard');
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -19,12 +19,9 @@ function App() {
             setLoading(true);
             if (currentUser) {
                 setUser(currentUser);
-                // Écouteur pour les données utilisateur
                 const userDocRef = doc(db, 'users', currentUser.uid);
                 const unsubscribeSnapshot = onSnapshot(userDocRef, (doc) => {
-                    if (doc.exists()) {
-                        setUserData(doc.data());
-                    }
+                    if (doc.exists()) setUserData(doc.data());
                     setLoading(false);
                 });
                 return () => unsubscribeSnapshot();
@@ -37,13 +34,10 @@ function App() {
         return () => unsubscribeAuth();
     }, []);
     
-    const handleLogout = () => {
-        signOut(auth);
-        setCurrentPage('dashboard');
-    };
+    const handleLogout = () => { signOut(auth); setCurrentPage('dashboard'); };
 
     if (loading) {
-        return <div className="bg-gray-900 text-white min-h-screen flex items-center justify-center">Chargement...</div>;
+        return <div className="bg-gray-900 text-white min-h-screen flex items-center justify-center text-xl">Chargement de l'application...</div>;
     }
 
     if (!user) {
@@ -52,11 +46,7 @@ function App() {
 
     return (
         <div className="bg-gray-900 text-gray-100 min-h-screen">
-            <Header 
-                userData={userData} 
-                onLogout={handleLogout} 
-                onNavigate={setCurrentPage} 
-            />
+            <Header userData={userData} onLogout={handleLogout} onNavigate={setCurrentPage} />
             <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
                 {currentPage === 'dashboard' && <DashboardPage user={user} userData={userData} />}
                 {currentPage === 'profile' && <ProfilePage user={user} userData={userData} />}
