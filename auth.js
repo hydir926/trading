@@ -44,7 +44,6 @@ signupForm.addEventListener('submit', (e) => {
 
     auth.createUserWithEmailAndPassword(email, password)
         .then(cred => {
-            // Sauvegarde les informations additionnelles dans Firestore
             return db.collection('users').doc(cred.user.uid).set({
                 fullName: fullName,
                 username: username,
@@ -58,7 +57,6 @@ signupForm.addEventListener('submit', (e) => {
         .then(() => {
             signupForm.reset();
             loader.classList.add('hidden');
-            // La redirection est gérée par l'observateur dans app.js
         })
         .catch(err => {
             alert(err.message);
@@ -78,7 +76,6 @@ loginForm.addEventListener('submit', (e) => {
         .then(() => {
             loginForm.reset();
             loader.classList.add('hidden');
-            // La redirection est gérée par l'observateur dans app.js
         })
         .catch(err => {
             alert(err.message);
