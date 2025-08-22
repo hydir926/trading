@@ -67,6 +67,9 @@ function renderProfile(data) {
 passwordChangeForm.addEventListener('submit', e => {
     e.preventDefault();
     const newPassword = document.getElementById('new-password').value;
+    if (newPassword.length < 6) {
+        return alert("Le mot de passe doit faire au moins 6 caractères.");
+    }
     currentUser.updatePassword(newPassword)
         .then(() => {
             alert("Mot de passe mis à jour avec succès !");
@@ -88,16 +91,36 @@ async function fetchMarketData() {
     }
 }
 
+// === FONCTION CORRIGÉE AVEC LES ICÔNES ===
 function renderCryptoTable() {
-    let html = `<table class="crypto-table"><thead><tr><th>Nom</th><th>Prix</th><th>24h %</th><th>Action</th></tr></thead><tbody>`;
+    let html = `<table class="crypto-table">
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Prix</th>
+                <th>24h %</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>`;
+
     marketData.forEach(coin => {
         html += `<tr>
-            <td>${coin.name} (${coin.symbol.toUpperCase()})</td>
+            <td>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <img src="${coin.image}" alt="${coin.name}" width="24" height="24" style="border-radius: 50%;">
+                    <div>
+                        ${coin.name}
+                        <span style="color: var(--text-secondary-color); text-transform: uppercase; font-size: 0.8em; display: block;">${coin.symbol}</span>
+                    </div>
+                </div>
+            </td>
             <td>$${coin.current_price.toLocaleString()}</td>
             <td class="${coin.price_change_percentage_24h > 0 ? 'positive' : 'negative'}">${coin.price_change_percentage_24h.toFixed(2)}%</td>
             <td><button class="btn-buy" data-symbol="${coin.symbol}" data-price="${coin.current_price}">Acheter</button></td>
         </tr>`;
     });
+
     html += `</tbody></table>`;
     cryptoTableContainer.innerHTML = html;
 }
@@ -175,3 +198,13 @@ document.addEventListener('click', e => {
         }).catch(err => alert(err.message));
     }
 });
+```</details>
+
+### **Résumé des Actions**
+
+1.  Ouvrez votre fichier `app.js`.
+2.  Remplacez son contenu par le code complet ci-dessus.
+3.  Sauvegardez le fichier.
+4.  Déployez vos changements sur GitHub (`git add .`, `git commit -m "Fix: restaurer les icônes des cryptos"`, `git push`).
+
+Une fois ces changements déployés, les icônes réapparaîtront, rendant votre application plus agréable à utiliser.
