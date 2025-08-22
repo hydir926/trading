@@ -9,12 +9,10 @@
 </head>
 <body>
 
-    <!-- === VUE AUTHENTIFICATION (visible par défaut) === -->
+    <!-- === VUE AUTHENTIFICATION === -->
     <main id="auth-container">
-        <!-- Formulaire de connexion -->
         <div class="form-container" id="login-view">
-            <h1>Bienvenue</h1>
-            <p class="subtitle">Connectez-vous pour continuer</p>
+            <h1>Bienvenue</h1><p class="subtitle">Connectez-vous pour continuer</p>
             <form id="login-form">
                 <div class="input-group"><label>Email</label><input type="email" id="login-email" required></div>
                 <div class="input-group"><label>Mot de passe</label><input type="password" id="login-password" required></div>
@@ -22,7 +20,6 @@
             </form>
             <p class="toggle-link">Pas de compte ? <a href="#" id="show-signup">Inscrivez-vous</a></p>
         </div>
-        <!-- Formulaire d'inscription -->
         <div class="form-container hidden" id="signup-view">
             <h1>Créer un compte</h1>
             <form id="signup-form">
@@ -36,28 +33,22 @@
         </div>
     </main>
 
-    <!-- === VUE DASHBOARD (cachée) === -->
+    <!-- === VUE DASHBOARD === -->
     <main id="app-container" class="hidden">
         <header>
             <div class="logo">CryptoDash</div>
             <div class="user-info">
                 <span id="user-greeting"></span>
+                <button id="show-transactions-btn" class="btn-secondary">Transactions</button>
                 <button id="show-profile-btn" class="btn-secondary">Mon Profil</button>
                 <button id="logout-button" class="btn-secondary">Déconnexion</button>
             </div>
         </header>
-        <section class="portfolio">
-             <h2>Valeur Totale du Portefeuille</h2>
-             <div id="portfolio-value">Chargement...</div>
-             <div id="portfolio-coins"></div>
-        </section>
-        <section class="market">
-            <h2>Marché des Cryptomonnaies</h2>
-            <div id="crypto-table-container"></div>
-        </section>
+        <section class="portfolio"><<h2>Valeur Totale du Portefeuille</h2><div id="portfolio-value">Chargement...</div><div id="portfolio-coins"></div></section>
+        <section class="market"><h2>Marché des Cryptomonnaies</h2><div id="crypto-table-container"></div></section>
     </main>
 
-    <!-- === VUE PROFIL (cachée) === -->
+    <!-- === VUE PROFIL === -->
     <main id="profile-container" class="hidden">
         <header>
             <div class="logo">Mon Profil & Paramètres</div>
@@ -83,15 +74,45 @@
         </section>
     </main>
 
-    <!-- Indicateur de chargement global -->
+    <!-- === NOUVELLE VUE: TRANSACTIONS (Dépôt/Retrait) === -->
+    <main id="transactions-container" class="hidden">
+        <header>
+            <div class="logo">Dépôts & Retraits</div>
+            <button id="back-to-dashboard-from-tx-btn" class="btn-secondary">Retour</button>
+        </header>
+        <div class="transactions-layout">
+            <div class="transactions-forms">
+                <section>
+                    <h2>Effectuer un Dépôt</h2>
+                    <form id="deposit-form">
+                        <div class="input-group"><label for="deposit-amount">Montant (USD)</label><input type="number" id="deposit-amount" placeholder="Ex: 500" min="1" step="0.01" required></div>
+                        <p class="form-info">Simule un virement depuis votre compte bancaire.</p>
+                        <button type="submit" class="btn-primary btn-deposit">Déposer</button>
+                    </form>
+                </section>
+                <section>
+                    <h2>Effectuer un Retrait</h2>
+                    <form id="withdrawal-form">
+                        <div class="input-group"><label for="withdrawal-amount">Montant (USD)</label><input type="number" id="withdrawal-amount" placeholder="Ex: 150" min="1" step="0.01" required></div>
+                        <p class="form-info">Simule un virement vers votre compte bancaire.</p>
+                        <button type="submit" class="btn-primary btn-withdraw">Retirer</button>
+                    </form>
+                </section>
+            </div>
+            <div class="transactions-history">
+                <section>
+                    <h2>Historique des Transactions</h2>
+                    <div id="transaction-history-list"><p>Aucune transaction pour le moment.</p></div>
+                </section>
+            </div>
+        </div>
+    </main>
+
     <div id="loader" class="hidden"><div class="spinner"></div></div>
 
-    <!-- Scripts Firebase (ancienne syntaxe "compat" plus simple) -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-    
-    <!-- Nos scripts personnalisés -->
     <script src="auth.js"></script>
     <script src="app.js"></script>
 </body>
