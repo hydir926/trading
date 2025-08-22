@@ -8,8 +8,6 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-    <!-- === VUE AUTHENTIFICATION === -->
     <main id="auth-container">
         <div class="form-container" id="login-view">
             <h1>Bienvenue</h1><p class="subtitle">Connectez-vous pour continuer</p>
@@ -32,8 +30,6 @@
             <p class="toggle-link">Déjà un compte ? <a href="#" id="show-login">Connectez-vous</a></p>
         </div>
     </main>
-
-    <!-- === VUE DASHBOARD === -->
     <main id="app-container" class="hidden">
         <header>
             <div class="logo">CryptoDash</div>
@@ -44,91 +40,68 @@
                 <button id="logout-button" class="btn-secondary">Déconnexion</button>
             </div>
         </header>
-        <section class="portfolio"><<h2>Valeur Totale du Portefeuille</h2><div id="portfolio-value">Chargement...</div><div id="portfolio-coins"></div></section>
-        <section class="market"><h2>Marché des Cryptomonnaies</h2><div id="crypto-table-container"></div></section>
+        <section class="portfolio"><<h2>Valeur Totale</h2><div id="portfolio-value">Chargement...</div><div id="portfolio-coins"></div></section>
+        <section class="market"><h2>Marché</h2><div id="crypto-table-container"></div></section>
     </main>
-
-    <!-- === VUE PROFIL === -->
     <main id="profile-container" class="hidden">
-        <header>
-            <div class="logo">Mon Profil & Paramètres</div>
-            <button id="back-to-dashboard-btn" class="btn-secondary">Retour</button>
-        </header>
+        <header><div class="logo">Mon Profil</div><button id="back-to-dashboard-btn" class="btn-secondary">Retour</button></header>
         <section>
             <h2>Mes Informations</h2>
             <div class="profile-info">
-                <p><strong>Nom complet:</strong> <span id="profile-fullname"></span></p>
-                <p><strong>Nom d'utilisateur:</strong> <span id="profile-username"></span></p>
+                <p><strong>Nom:</strong> <span id="profile-fullname"></span></p>
+                <p><strong>Utilisateur:</strong> <span id="profile-username"></span></p>
                 <p><strong>Email:</strong> <span id="profile-email"></span></p>
             </div>
         </section>
         <section>
-            <h2>Paramètres du compte</h2>
+            <h2>Paramètres</h2>
             <form id="password-change-form">
-                <div class="input-group">
-                    <label for="new-password">Changer le mot de passe</label>
-                    <input type="password" id="new-password" placeholder="Nouveau mot de passe (6 caractères min)" required>
-                </div>
+                <div class="input-group"><label for="new-password">Changer de mot de passe</label><input type="password" id="new-password" placeholder="6 caractères min" required></div>
                 <button type="submit" class="btn-primary">Mettre à jour</button>
             </form>
         </section>
     </main>
-
-    <!-- === VUE TRANSACTIONS (Dépôt/Retrait) === -->
     <main id="transactions-container" class="hidden">
-        <header>
-            <div class="logo">Dépôts & Retraits</div>
-            <button id="back-to-dashboard-from-tx-btn" class="btn-secondary">Retour</button>
-        </header>
+        <header><div class="logo">Dépôts & Retraits</div><button id="back-to-dashboard-from-tx-btn" class="btn-secondary">Retour</button></header>
         <div class="transactions-layout">
             <div class="transactions-forms">
                 <section>
-                    <h2>Effectuer un Dépôt</h2>
+                    <h2>Dépôt</h2>
                     <form id="deposit-form">
                         <div class="input-group"><label for="deposit-amount">Montant (USD)</label><input type="number" id="deposit-amount" placeholder="Ex: 500" min="1" step="0.01" required></div>
-                        <p class="form-info">Simule un virement depuis votre compte bancaire.</p>
-                        <button type="submit" class="btn-primary btn-deposit">Procéder au dépôt</button>
+                        <p class="form-info">Simule un virement.</p><button type="submit" class="btn-primary btn-deposit">Procéder</button>
                     </form>
                 </section>
                 <section>
-                    <h2>Effectuer un Retrait</h2>
+                    <h2>Retrait</h2>
                     <form id="withdrawal-form">
                         <div class="input-group"><label for="withdrawal-amount">Montant (USD)</label><input type="number" id="withdrawal-amount" placeholder="Ex: 150" min="1" step="0.01" required></div>
-                        <p class="form-info">Simule un virement vers votre compte bancaire.</p>
-                        <button type="submit" class="btn-primary btn-withdraw">Retirer</button>
+                        <p class="form-info">Simule un virement.</p><button type="submit" class="btn-primary btn-withdraw">Retirer</button>
                     </form>
                 </section>
             </div>
             <div class="transactions-history">
-                <section>
-                    <h2>Historique des Transactions</h2>
-                    <div id="transaction-history-list"><p>Aucune transaction pour le moment.</p></div>
-                </section>
+                <section><h2>Historique</h2><div id="transaction-history-list"><p>Aucune transaction.</p></div></section>
             </div>
         </div>
     </main>
-
-    <!-- NOUVELLE FENÊTRE MODALE POUR LA CARTE BANCAIRE (cachée par défaut) -->
     <div id="card-modal" class="modal-overlay hidden">
         <div class="modal-content">
             <button id="close-modal-btn" class="close-btn">&times;</button>
-            <h3>Finaliser le Dépôt</h3>
-            <p class="subtitle">Veuillez entrer les informations de votre carte</p>
+            <h3>Finaliser le Dépôt</h3><p class="subtitle">Entrez les infos de votre carte</p>
             <form id="card-form">
-                <div class="input-group"><label for="card-number">Numéro de Carte</label><input type="text" id="card-number" placeholder="4974 1234 5678 9101" required></div>
-                <div class="input-group"><label for="card-name">Nom sur la Carte</label><input type="text" id="card-name" placeholder="Nom Prénom" required></div>
+                <div class="input-group"><label>Numéro de Carte</label><input type="text" id="card-number" placeholder="4974 1234 5678 9101" required></div>
+                <div class="input-group"><label>Nom sur la Carte</label><input type="text" id="card-name" placeholder="Nom Prénom" required></div>
                 <div class="form-row">
-                    <div class="input-group"><label for="card-expiry">Date d'Expiration</label><input type="text" id="card-expiry" placeholder="MM/AA" required></div>
-                    <div class="input-group"><label for="card-cvc">CVC</label><input type="text" id="card-cvc" placeholder="123" required></div>
+                    <div class="input-group"><label>Expiration</label><input type="text" id="card-expiry" placeholder="MM/AA" required></div>
+                    <div class="input-group"><label>CVC</label><input type="text" id="card-cvc" placeholder="123" required></div>
                 </div>
                 <div class="secure-info"><span>Paiement sécurisé (Simulation)</span></div>
                 <button type="submit" id="pay-button" class="btn-primary">Payer 0,00 $US</button>
             </form>
         </div>
     </div>
-
     <div id="loader" class="hidden"><div class="spinner"></div></div>
-
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
