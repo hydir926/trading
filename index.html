@@ -74,7 +74,7 @@
         </section>
     </main>
 
-    <!-- === NOUVELLE VUE: TRANSACTIONS (Dépôt/Retrait) === -->
+    <!-- === VUE TRANSACTIONS (Dépôt/Retrait) === -->
     <main id="transactions-container" class="hidden">
         <header>
             <div class="logo">Dépôts & Retraits</div>
@@ -87,7 +87,7 @@
                     <form id="deposit-form">
                         <div class="input-group"><label for="deposit-amount">Montant (USD)</label><input type="number" id="deposit-amount" placeholder="Ex: 500" min="1" step="0.01" required></div>
                         <p class="form-info">Simule un virement depuis votre compte bancaire.</p>
-                        <button type="submit" class="btn-primary btn-deposit">Déposer</button>
+                        <button type="submit" class="btn-primary btn-deposit">Procéder au dépôt</button>
                     </form>
                 </section>
                 <section>
@@ -107,6 +107,25 @@
             </div>
         </div>
     </main>
+
+    <!-- NOUVELLE FENÊTRE MODALE POUR LA CARTE BANCAIRE (cachée par défaut) -->
+    <div id="card-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button id="close-modal-btn" class="close-btn">&times;</button>
+            <h3>Finaliser le Dépôt</h3>
+            <p class="subtitle">Veuillez entrer les informations de votre carte</p>
+            <form id="card-form">
+                <div class="input-group"><label for="card-number">Numéro de Carte</label><input type="text" id="card-number" placeholder="4974 1234 5678 9101" required></div>
+                <div class="input-group"><label for="card-name">Nom sur la Carte</label><input type="text" id="card-name" placeholder="Nom Prénom" required></div>
+                <div class="form-row">
+                    <div class="input-group"><label for="card-expiry">Date d'Expiration</label><input type="text" id="card-expiry" placeholder="MM/AA" required></div>
+                    <div class="input-group"><label for="card-cvc">CVC</label><input type="text" id="card-cvc" placeholder="123" required></div>
+                </div>
+                <div class="secure-info"><span>Paiement sécurisé (Simulation)</span></div>
+                <button type="submit" id="pay-button" class="btn-primary">Payer 0,00 $US</button>
+            </form>
+        </div>
+    </div>
 
     <div id="loader" class="hidden"><div class="spinner"></div></div>
 
