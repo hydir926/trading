@@ -20,7 +20,7 @@ const passwordChangeForm = document.getElementById('password-change-form');
 let currentUser = null;
 let userData = {};
 let marketData = [];
-let unsubscribeUser; // Pour stopper l'écouteur lors de la déconnexion
+let unsubscribeUser;
 
 // -- GESTION DE LA NAVIGATION --
 function showPage(pageId) {
@@ -36,9 +36,8 @@ logoutButton.addEventListener('click', () => auth.signOut());
 auth.onAuthStateChanged(user => {
     if (user) {
         currentUser = user;
-        if (unsubscribeUser) unsubscribeUser(); // Nettoie l'ancien écouteur
+        if (unsubscribeUser) unsubscribeUser();
         
-        // Écouteur en temps réel pour les données de l'utilisateur
         unsubscribeUser = db.collection('users').doc(user.uid).onSnapshot(doc => {
             if (doc.exists) {
                 userData = doc.data();
@@ -84,26 +83,16 @@ async function fetchMarketData() {
         const res = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=50&page=1');
         marketData = await res.json();
         renderCryptoTable();
-        // Rafraîchit le portefeuille avec les nouveaux prix
         if (userData.portfolio) renderPortfolio(userData.portfolio);
     } catch (err) {
         console.error("Erreur de récupération des données du marché:", err);
     }
 }
 
-// === FONCTION CORRIGÉE AVEC LES ICÔNES ===
 function renderCryptoTable() {
     let html = `<table class="crypto-table">
-        <thead>
-            <tr>
-                <th>Nom</th>
-                <th>Prix</th>
-                <th>24h %</th>
-                <th>Action</th>
-            </tr>
-        </thead>
+        <thead><tr><th>Nom</th><th>Prix</th><th>24h %</th><th>Action</th></tr></thead>
         <tbody>`;
-
     marketData.forEach(coin => {
         html += `<tr>
             <td>
@@ -120,7 +109,6 @@ function renderCryptoTable() {
             <td><button class="btn-buy" data-symbol="${coin.symbol}" data-price="${coin.current_price}">Acheter</button></td>
         </tr>`;
     });
-
     html += `</tbody></table>`;
     cryptoTableContainer.innerHTML = html;
 }
@@ -130,7 +118,7 @@ function renderPortfolio(portfolio) {
     let html = '<h4>Mes Actifs</h4>';
     for (const symbol in portfolio.coins) {
         const amount = portfolio.coins[symbol];
-        if (amount > 1e-6) { // Ne pas afficher si la quantité est quasi nulle
+        if (amount > 1e-6) {
             const coinData = marketData.find(c => c.symbol === symbol);
             const value = coinData ? amount * coinData.current_price : 0;
             totalValue += value;
@@ -151,7 +139,6 @@ document.addEventListener('click', e => {
     if (!currentUser) return;
     const userDocRef = db.collection('users').doc(currentUser.uid);
 
-    // Logique d'Achat
     if (e.target.matches('.btn-buy')) {
         const { symbol, price } = e.target.dataset;
         const amountUsd = parseFloat(prompt(`Combien de $ de ${symbol.toUpperCase()} voulez-vous acheter ?`));
@@ -161,10 +148,8 @@ document.addEventListener('click', e => {
             const doc = await t.get(userDocRef);
             const portfolio = doc.data().portfolio;
             if (portfolio.cash < amountUsd) throw new Error("Solde en cash insuffisant.");
-            
             const coinAmount = amountUsd / parseFloat(price);
             const currentCoinAmount = portfolio.coins[symbol] || 0;
-            
             t.update(userDocRef, {
                 'portfolio.cash': portfolio.cash - amountUsd,
                 [`portfolio.coins.${symbol}`]: currentCoinAmount + coinAmount
@@ -172,7 +157,6 @@ document.addEventListener('click', e => {
         }).catch(err => alert(err.message));
     }
 
-    // Logique de Vente
     if (e.target.matches('.btn-sell')) {
         const { symbol } = e.target.dataset;
         const coinData = marketData.find(c => c.symbol === symbol);
@@ -180,14 +164,12 @@ document.addEventListener('click', e => {
         
         const price = coinData.current_price;
         const currentCoinAmount = userData.portfolio.coins[symbol] || 0;
-        
         const amountToSell = parseFloat(prompt(`Combien de ${symbol.toUpperCase()} voulez-vous vendre ? (Vous possédez: ${currentCoinAmount.toFixed(6)})`));
         if (isNaN(amountToSell) || amountToSell <= 0 || amountToSell > currentCoinAmount) {
             return alert("Montant invalide ou vous n'en possédez pas assez.");
         }
 
         const cashGain = amountToSell * price;
-        
         db.runTransaction(async t => {
             const doc = await t.get(userDocRef);
             const portfolio = doc.data().portfolio;
@@ -198,13 +180,3 @@ document.addEventListener('click', e => {
         }).catch(err => alert(err.message));
     }
 });
-```</details>
-
-### **Résumé des Actions**
-
-1.  Ouvrez votre fichier `app.js`.
-2.  Remplacez son contenu par le code complet ci-dessus.
-3.  Sauvegardez le fichier.
-4.  Déployez vos changements sur GitHub (`git add .`, `git commit -m "Fix: restaurer les icônes des cryptos"`, `git push`).
-
-Une fois ces changements déployés, les icônes réapparaîtront, rendant votre application plus agréable à utiliser.
