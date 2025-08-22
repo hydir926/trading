@@ -1,3 +1,6 @@
+// app.js (Version finale, propre et garantie sans doublons)
+
+// --- SÉLECTION UNIQUE DE TOUS LES ÉLÉMENTS DU DOM ---
 const authContainer = document.getElementById('auth-container');
 const appContainer = document.getElementById('app-container');
 const profileContainer = document.getElementById('profile-container');
@@ -23,10 +26,22 @@ const transactionHistoryList = document.getElementById('transaction-history-list
 const cardForm = document.getElementById('card-form');
 const closeModalBtn = document.getElementById('close-modal-btn');
 const payButton = document.getElementById('pay-button');
-let currentUser = null, userData = {}, marketData = [], unsubscribeUser, unsubscribeTransactions, depositAmountInProgress = 0;
-function showPage(pageId) { [authContainer, appContainer, profileContainer, transactionsContainer].forEach(p => p.classList.add('hidden')); document.getElementById(pageId).classList.remove('hidden'); }
+
+// --- VARIABLES GLOBALES ---
+let currentUser = null;
+let userData = {};
+let marketData = [];
+let unsubscribeUser, unsubscribeTransactions;
+let depositAmountInProgress = 0;
+
+// -- GESTION DE LA NAVIGATION & MODALE --
+function showPage(pageId) {
+    [authContainer, appContainer, profileContainer, transactionsContainer].forEach(p => p.classList.add('hidden'));
+    document.getElementById(pageId).classList.remove('hidden');
+}
 const openCardModal = () => cardModal.classList.remove('hidden');
 const closeCardModal = () => cardModal.classList.add('hidden');
+
 showProfileBtn.addEventListener('click', () => showPage('profile-container'));
 showTransactionsBtn.addEventListener('click', () => showPage('transactions-container'));
 backToDashboardBtn.addEventListener('click', () => showPage('app-container'));
@@ -34,11 +49,14 @@ backToDashboardFromTxBtn.addEventListener('click', () => showPage('app-container
 logoutButton.addEventListener('click', () => auth.signOut());
 closeModalBtn.addEventListener('click', closeCardModal);
 cardModal.addEventListener('click', (e) => { if (e.target === cardModal) closeCardModal(); });
+
+// -- GESTION DE L'ÉTAT D'AUTHENTIFICATION --
 auth.onAuthStateChanged(user => {
     if (user) {
         currentUser = user;
         if (unsubscribeUser) unsubscribeUser();
         if (unsubscribeTransactions) unsubscribeTransactions();
+
         unsubscribeUser = db.collection('users').doc(user.uid).onSnapshot(doc => {
             if (doc.exists) {
                 userData = doc.data();
@@ -57,13 +75,23 @@ auth.onAuthStateChanged(user => {
         showPage('auth-container');
     }
 });
-function renderProfile(data) { profileFullnameSpan.textContent = data.fullName; profileUsernameSpan.textContent = data.username; profileEmailSpan.textContent = data.email; }
+
+// -- PROFIL UTILISATEUR --
+function renderProfile(data) {
+    profileFullnameSpan.textContent = data.fullName;
+    profileUsernameSpan.textContent = data.username;
+    profileEmailSpan.textContent = data.email;
+}
 passwordChangeForm.addEventListener('submit', e => {
     e.preventDefault();
     const newPassword = document.getElementById('new-password').value;
     if (newPassword.length < 6) return alert("Le mot de passe doit faire au moins 6 caractères.");
-    currentUser.updatePassword(newPassword).then(() => { alert("Mot de passe mis à jour !"); passwordChangeForm.reset(); }).catch(err => alert(err.message));
+    currentUser.updatePassword(newPassword)
+        .then(() => { alert("Mot de passe mis à jour !"); passwordChangeForm.reset(); })
+        .catch(err => alert(err.message));
 });
+
+// -- DÉPÔTS ET RETRAITS --
 depositForm.addEventListener('submit', e => {
     e.preventDefault();
     const amount = parseFloat(document.getElementById('deposit-amount').value);
@@ -72,31 +100,47 @@ depositForm.addEventListener('submit', e => {
     payButton.textContent = `Payer ${amount.toLocaleString('fr-FR', {style:'currency', currency:'USD'})}`;
     openCardModal();
 });
+
 cardForm.addEventListener('submit', e => {
     e.preventDefault();
     loader.classList.remove('hidden');
+    
     const amount = depositAmountInProgress;
     const userDocRef = db.collection('users').doc(currentUser.uid);
+
     Promise.all([
         userDocRef.update({ 'portfolio.cash': firebase.firestore.FieldValue.increment(amount) }),
         userDocRef.collection('transactions').add({ type: 'deposit', amount, timestamp: firebase.firestore.FieldValue.serverTimestamp() })
-    ]).then(() => { alert(`Dépôt de ${amount.toLocaleString('fr-FR',{style:'currency',currency:'USD'})} réussi !`); depositForm.reset(); cardForm.reset(); closeCardModal(); })
-      .catch(err => alert(`Erreur : ${err.message}`)).finally(() => loader.classList.add('hidden'));
+    ]).then(() => {
+        alert(`Dépôt de ${amount.toLocaleString('fr-FR',{style:'currency',currency:'USD'})} réussi !`);
+        depositForm.reset();
+        cardForm.reset();
+        closeCardModal();
+    }).catch(err => {
+        alert(`Erreur : ${err.message}`);
+    }).finally(() => {
+        loader.classList.add('hidden');
+    });
 });
+
 withdrawalForm.addEventListener('submit', e => {
     e.preventDefault();
     const amount = parseFloat(document.getElementById('withdrawal-amount').value);
     if (isNaN(amount) || amount <= 0) return alert("Montant invalide.");
-    if (amount > userData.portfolio.cash) return alert("Solde insuffisant.");
+    if (!userData.portfolio || amount > userData.portfolio.cash) return alert("Solde insuffisant.");
+    
     const userDocRef = db.collection('users').doc(currentUser.uid);
     Promise.all([
         userDocRef.update({ 'portfolio.cash': firebase.firestore.FieldValue.increment(-amount) }),
         userDocRef.collection('transactions').add({ type: 'withdrawal', amount, timestamp: firebase.firestore.FieldValue.serverTimestamp() })
-    ]).then(() => { alert(`Retrait de ${amount.toLocaleString('fr-FR',{style:'currency',currency:'USD'})} réussi !`); withdrawalForm.reset(); })
-      .catch(err => alert(`Erreur : ${err.message}`));
+    ]).then(() => {
+        alert(`Retrait de ${amount.toLocaleString('fr-FR',{style:'currency',currency:'USD'})} réussi !`);
+        withdrawalForm.reset();
+    }).catch(err => alert(`Erreur : ${err.message}`));
 });
+
 function renderTransactionHistory(docs) {
-    if (docs.length === 0) { transactionHistoryList.innerHTML = '<p>Aucune transaction.</p>'; return; }
+    if (docs.length === 0) { transactionHistoryList.innerHTML = '<p>Aucune transaction pour le moment.</p>'; return; }
     let html = '';
     docs.forEach(doc => {
         const tx = doc.data();
@@ -108,6 +152,8 @@ function renderTransactionHistory(docs) {
     });
     transactionHistoryList.innerHTML = html;
 }
+
+// -- DONNÉES DU MARCHÉ & AFFICHAGE --
 async function fetchMarketData() {
     try {
         const res = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=50&page=1');
@@ -116,6 +162,7 @@ async function fetchMarketData() {
         if (userData.portfolio) renderPortfolio(userData.portfolio);
     } catch (err) { console.error("Erreur du marché:", err); }
 }
+
 function renderCryptoTable() {
     let html = `<table class="crypto-table"><thead><tr><th>Nom</th><th>Prix</th><th>24h %</th><th>Action</th></tr></thead><tbody>`;
     marketData.forEach(coin => {
@@ -124,6 +171,7 @@ function renderCryptoTable() {
     html += `</tbody></table>`;
     cryptoTableContainer.innerHTML = html;
 }
+
 function renderPortfolio(portfolio) {
     let totalValue = portfolio.cash;
     let html = '<h4>Mes Actifs</h4>';
@@ -140,9 +188,12 @@ function renderPortfolio(portfolio) {
     portfolioValueDiv.innerHTML = `$${totalValue.toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2})}`;
     portfolioCoinsDiv.innerHTML = html;
 }
+
+// -- LOGIQUE DE TRADING (ACHAT/VENTE) --
 document.addEventListener('click', e => {
     if (!currentUser) return;
     const userDocRef = db.collection('users').doc(currentUser.uid);
+
     if (e.target.matches('.btn-buy')) {
         const { symbol, price } = e.target.dataset;
         const amountUsd = parseFloat(prompt(`Combien de $ de ${symbol.toUpperCase()} voulez-vous acheter ?`));
@@ -156,6 +207,7 @@ document.addEventListener('click', e => {
             t.update(userDocRef, { 'portfolio.cash': portfolio.cash - amountUsd, [`portfolio.coins.${symbol}`]: currentCoinAmount + coinAmount });
         }).catch(err => alert(err.message));
     }
+
     if (e.target.matches('.btn-sell')) {
         const { symbol } = e.target.dataset;
         const coinData = marketData.find(c => c.symbol === symbol);
