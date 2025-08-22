@@ -1,4 +1,4 @@
-// app.js
+// app.js (Version finale, corrigée et complète)
 
 // -- SÉLECTION DES ÉLÉMENTS DU DOM --
 const authContainer = document.getElementById('auth-container');
@@ -6,6 +6,7 @@ const appContainer = document.getElementById('app-container');
 const profileContainer = document.getElementById('profile-container');
 const transactionsContainer = document.getElementById('transactions-container');
 const cardModal = document.getElementById('card-modal');
+const loader = document.getElementById('loader');
 const userGreetingSpan = document.getElementById('user-greeting');
 const logoutButton = document.getElementById('logout-button');
 const showProfileBtn = document.getElementById('show-profile-btn');
@@ -47,7 +48,7 @@ backToDashboardBtn.addEventListener('click', () => showPage('app-container'));
 backToDashboardFromTxBtn.addEventListener('click', () => showPage('app-container'));
 logoutButton.addEventListener('click', () => auth.signOut());
 closeModalBtn.addEventListener('click', closeCardModal);
-cardModal.addEventListener('click', (e) => { if (e.target === cardModal) closeCardModal(); }); // Ferme si on clique sur l'arrière-plan
+cardModal.addEventListener('click', (e) => { if (e.target === cardModal) closeCardModal(); });
 
 // -- GESTION DE L'ÉTAT D'AUTHENTIFICATION --
 auth.onAuthStateChanged(user => {
@@ -55,6 +56,7 @@ auth.onAuthStateChanged(user => {
         currentUser = user;
         if (unsubscribeUser) unsubscribeUser();
         if (unsubscribeTransactions) unsubscribeTransactions();
+
         unsubscribeUser = db.collection('users').doc(user.uid).onSnapshot(doc => {
             if (doc.exists) {
                 userData = doc.data();
@@ -63,7 +65,10 @@ auth.onAuthStateChanged(user => {
                 userGreetingSpan.textContent = `Bonjour, ${userData.username}`;
             }
         });
-        unsubscribeTransactions = db.collection('users').doc(user.uid).collection('transactions').orderBy('timestamp', 'desc').limit(10).onSnapshot(snapshot => renderTransactionHistory(snapshot.docs));
+
+        unsubscribeTransactions = db.collection('users').doc(user.uid).collection('transactions')
+            .orderBy('timestamp', 'desc').limit(10).onSnapshot(snapshot => renderTransactionHistory(snapshot.docs));
+
         fetchMarketData();
         showPage('app-container');
     } else {
@@ -75,8 +80,19 @@ auth.onAuthStateChanged(user => {
 });
 
 // -- PROFIL UTILISATEUR --
-function renderProfile(data) { /* ... (inchangé) ... */ }
-passwordChangeForm.addEventListener('submit', e => { /* ... (inchangé) ... */ });
+function renderProfile(data) {
+    profileFullnameSpan.textContent = data.fullName;
+    profileUsernameSpan.textContent = data.username;
+    profileEmailSpan.textContent = data.email;
+}
+passwordChangeForm.addEventListener('submit', e => {
+    e.preventDefault();
+    const newPassword = document.getElementById('new-password').value;
+    if (newPassword.length < 6) return alert("Le mot de passe doit faire au moins 6 caractères.");
+    currentUser.updatePassword(newPassword)
+        .then(() => { alert("Mot de passe mis à jour !"); passwordChangeForm.reset(); })
+        .catch(err => alert(err.message));
+});
 
 // -- DÉPÔTS ET RETRAITS --
 depositForm.addEventListener('submit', e => {
@@ -92,8 +108,6 @@ cardForm.addEventListener('submit', e => {
     e.preventDefault();
     loader.classList.remove('hidden');
     
-    // -- SIMULATION DE PAIEMENT --
-    // Nous ne lisons pas les données de la carte. Nous procédons directement au dépôt.
     const amount = depositAmountInProgress;
     const userDocRef = db.collection('users').doc(currentUser.uid);
 
@@ -128,33 +142,8 @@ withdrawalForm.addEventListener('submit', e => {
     }).catch(err => alert(`Erreur : ${err.message}`));
 });
 
-function renderTransactionHistory(docs) { /* ... (inchangé) ... */ }
-
-// -- DONNÉES DU MARCHÉ & AFFICHAGE --
-async function fetchMarketData() { /* ... (inchangé) ... */ }
-function renderCryptoTable() { /* ... (inchangé) ... */ }
-function renderPortfolio(portfolio) { /* ... (inchangé) ... */ }
-
-// -- LOGIQUE DE TRADING (ACHAT/VENTE) --
-document.addEventListener('click', e => { /* ... (inchangé) ... */ });
-
-
-// --- Recopiez ici les fonctions manquantes de la version précédente ---
-function renderProfile(data) {
-    profileFullnameSpan.textContent = data.fullName;
-    profileUsernameSpan.textContent = data.username;
-    profileEmailSpan.textContent = data.email;
-}
-passwordChangeForm.addEventListener('submit', e => {
-    e.preventDefault();
-    const newPassword = document.getElementById('new-password').value;
-    if (newPassword.length < 6) return alert("Le mot de passe doit faire au moins 6 caractères.");
-    currentUser.updatePassword(newPassword)
-        .then(() => { alert("Mot de passe mis à jour !"); passwordChangeForm.reset(); })
-        .catch(err => alert(err.message));
-});
 function renderTransactionHistory(docs) {
-    if (docs.length === 0) { transactionHistoryList.innerHTML = '<p>Aucune transaction.</p>'; return; }
+    if (docs.length === 0) { transactionHistoryList.innerHTML = '<p>Aucune transaction pour le moment.</p>'; return; }
     let html = '';
     docs.forEach(doc => {
         const tx = doc.data();
@@ -166,22 +155,31 @@ function renderTransactionHistory(docs) {
     });
     transactionHistoryList.innerHTML = html;
 }
+
+// -- DONNÉES DU MARCHÉ & AFFICHAGE --
 async function fetchMarketData() {
     try {
         const res = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=50&page=1');
         marketData = await res.json();
         renderCryptoTable();
         if (userData.portfolio) renderPortfolio(userData.portfolio);
-    } catch (err) { console.error("Erreur du marché:", err); }
+    } catch (err) { console.error("Erreur de récupération du marché:", err); }
 }
+
 function renderCryptoTable() {
     let html = `<table class="crypto-table"><thead><tr><th>Nom</th><th>Prix</th><th>24h %</th><th>Action</th></tr></thead><tbody>`;
     marketData.forEach(coin => {
-        html += `<tr><td><div style="display: flex; align-items: center; gap: 10px;"><img src="${coin.image}" alt="${coin.name}" width="24" height="24" style="border-radius: 50%;"><div>${coin.name}<span style="color: var(--text-secondary-color); text-transform: uppercase; font-size: 0.8em; display: block;">${coin.symbol}</span></div></div></td><td>$${coin.current_price.toLocaleString()}</td><td class="${coin.price_change_percentage_24h > 0 ? 'positive' : 'negative'}">${coin.price_change_percentage_24h.toFixed(2)}%</td><td><button class="btn-buy" data-symbol="${coin.symbol}" data-price="${coin.current_price}">Acheter</button></td></tr>`;
+        html += `<tr>
+            <td><div style="display: flex; align-items: center; gap: 10px;"><img src="${coin.image}" alt="${coin.name}" width="24" height="24" style="border-radius: 50%;"><div>${coin.name}<span style="color: var(--text-secondary-color); text-transform: uppercase; font-size: 0.8em; display: block;">${coin.symbol}</span></div></div></td>
+            <td>$${coin.current_price.toLocaleString()}</td>
+            <td class="${coin.price_change_percentage_24h > 0 ? 'positive' : 'negative'}">${coin.price_change_percentage_24h.toFixed(2)}%</td>
+            <td><button class="btn-buy" data-symbol="${coin.symbol}" data-price="${coin.current_price}">Acheter</button></td>
+        </tr>`;
     });
     html += `</tbody></table>`;
     cryptoTableContainer.innerHTML = html;
 }
+
 function renderPortfolio(portfolio) {
     let totalValue = portfolio.cash;
     let html = '<h4>Mes Actifs</h4>';
@@ -198,6 +196,8 @@ function renderPortfolio(portfolio) {
     portfolioValueDiv.innerHTML = `$${totalValue.toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2})}`;
     portfolioCoinsDiv.innerHTML = html;
 }
+
+// -- LOGIQUE DE TRADING (ACHAT/VENTE) --
 document.addEventListener('click', e => {
     if (!currentUser) return;
     const userDocRef = db.collection('users').doc(currentUser.uid);
@@ -229,4 +229,4 @@ document.addEventListener('click', e => {
             t.update(userDocRef, { 'portfolio.cash': portfolio.cash + cashGain, [`portfolio.coins.${symbol}`]: portfolio.coins[symbol] - amountToSell });
         }).catch(err => alert(err.message));
     }
-});```
+});
